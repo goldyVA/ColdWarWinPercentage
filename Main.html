@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cold War Momentum · 1945–1991</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    header p {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      color: #888;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+    nav button {
+      background: transparent;
+      border: 1px solid #333;
+      color: #aaa;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    nav button:hover { border-color: #555; color: #ddd; }
+    nav button.active { background: #3266ad; border-color: #3266ad; color: #fff; font-weight: 500; }
+
+    .chart-section {
+      display: none;
+      max-width: 900px;
+      margin: 0 auto 3rem;
+      background: #181b24;
+      border: 1px solid #252830;
+      border-radius: 12px;
+      padding: 1.5rem 1.5rem 1rem;
+    }
+    .chart-section.visible { display: block; }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .chart-header .us  { color: #3266ad; }
+    .chart-header .ussr { color: #cc3333; }
+    .chart-header .title { color: #666; font-size: 13px; }
+
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 380px;
+    }
+
+    .tooltip-box {
+      position: fixed;
+      background: #1e2130;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      pointer-events: none;
+      display: none;
+      max-width: 240px;
+      z-index: 999;
+      line-height: 1.5;
+    }
+    .tooltip-box .tt-year { font-weight: 600; color: #fff; margin-bottom: 3px; }
+    .tooltip-box .tt-event { color: #aaa; }
+
+    footer {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 12px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Cold War Momentum · 1945–1991</h1>
+  <p>Key events mapped as a win-probability graph · hover any point for details</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showChart('c40s', this)">1945–1949</button>
+  <button onclick="showChart('c50s', this)">1950s</button>
+  <button onclick="showChart('c60s', this)">1960s</button>
+  <button onclick="showChart('c70s', this)">1970s</button>
+  <button onclick="showChart('c80s', this)">1980–1991</button>
+</nav>
+
+<!-- Shared tooltip -->
+<div id="shared-tooltip" class="tooltip-box">
+  <div id="tt-year" class="tt-year"></div>
+  <div id="tt-event" class="tt-event"></div>
+</div>
+
+<!-- ── 1945–1949 ── -->
+<section id="c40s" class="chart-section visible">
+  <div class="chart-header">
+    <span class="us">▲ US advantage</span>
+    <span class="title">Cold War origins · 1945–1949</span>
+    <span class="ussr">▼ USSR advantage</span>
+  </div>
+  <div class="chart-wrap"><canvas id="chart40s" role="img" aria-label="Cold War momentum 1945–1949"></canvas></div>
+</section>
+
+<!-- ── 1950s ── -->
+<section id="c50s" class="chart-section">
+  <div class="chart-header">
+    <span class="us">▲ US advantage</span>
+    <span class="title">Cold War momentum · 1950–1959</span>
+    <span class="ussr">▼ USSR advantage</span>
+  </div>
+  <div class="chart-wrap"><canvas id="chart50s" role="img" aria-label="Cold War momentum 1950–1959"></canvas></div>
+</section>
+
+<!-- ── 1960s ── -->
+<section id="c60s" class="chart-section">
+  <div class="chart-header">
+    <span class="us">▲ US advantage</span>
+    <span class="title">Cold War momentum · 1960–1969</span>
+    <span class="ussr">▼ USSR advantage</span>
+  </div>
+  <div class="chart-wrap"><canvas id="chart60s" role="img" aria-label="Cold War momentum 1960–1969"></canvas></div>
+</section>
+
+<!-- ── 1970s ── -->
+<section id="c70s" class="chart-section">
+  <div class="chart-header">
+    <span class="us">▲ US advantage</span>
+    <span class="title">Cold War momentum · 1970–1979</span>
+    <span class="ussr">▼ USSR advantage</span>
+  </div>
+  <div class="chart-wrap"><canvas id="chart70s" role="img" aria-label="Cold War momentum 1970–1979"></canvas></div>
+</section>
+
+<!-- ── 1980–1991 ── -->
+<section id="c80s" class="chart-section">
+  <div class="chart-header">
+    <span class="us">▲ US advantage</span>
+    <span class="title">Cold War momentum · 1980–1991</span>
+    <span class="ussr">▼ USSR advantage</span>
+  </div>
+  <div class="chart-wrap"><canvas id="chart80s" role="img" aria-label="Cold War momentum 1980–1991"></canvas></div>
+</section>
+
+<footer>Built with Chart.js · Data represents interpretive historical momentum, not objective measurement</footer>
+
+<script>
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const tooltip = document.getElementById('shared-tooltip');
+const ttYear  = document.getElementById('tt-year');
+const ttEvent = document.getElementById('tt-event');
+
+function showChart(id, btn) {
+  document.querySelectorAll('.chart-section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('visible');
+  btn.classList.add('active');
+  tooltip.style.display = 'none';
+}
+
+function makeTooltip(events, tWidth) {
+  return {
+    enabled: false,
+    external(context) {
+      const model = context.tooltip;
+      if (model.opacity === 0) { tooltip.style.display = 'none'; return; }
+      const idx = model.dataPoints?.[0]?.dataIndex;
+      if (idx === undefined) return;
+      const ev  = events[idx];
+      const yr  = Math.floor(ev.year);
+      const frac = ev.year % 1;
+      const mo  = frac > 0.04 ? ' · ' + months[Math.min(Math.round(frac * 12), 11)] : '';
+      ttYear.textContent  = yr + mo;
+      ttEvent.textContent = ev.label;
+      tooltip.style.display = 'block';
+      const x = model.caretX;
+      tooltip.style.left = (x + 16 + tWidth > window.innerWidth ? x - tWidth - 8 : x + 16) + 'px';
+      tooltip.style.top  = (model.caretY - 20) + 'px';
+    }
+  };
+}
+
+function buildChart(canvasId, events, yMin, yMax) {
+  const data   = events.map(e => e.score);
+  const colors = data.map(v => v >= 0 ? '#3266ad' : '#cc3333');
+  const ctx    = document.getElementById(canvasId).getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: events.map(e => e.year.toFixed(2)),
+      datasets: [{
+        data,
+        segment: {
+          borderColor: c => ((c.p0.parsed.y + c.p1.parsed.y) / 2) >= 0 ? '#3266ad' : '#cc3333'
+        },
+        pointBackgroundColor: colors,
+        pointBorderColor: colors,
+        pointRadius: 6,
+        pointHoverRadius: 9,
+        borderWidth: 3,
+        tension: 0.4,
+        fill: { target: { value: 0 }, above: 'rgba(50,102,173,0.15)', below: 'rgba(204,51,51,0.15)' }
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: makeTooltip(events, 240)
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          ticks: {
+            autoSkip: false, maxRotation: 0,
+            callback(val, idx) {
+              const yr = events[idx].year;
+              return yr % 1 < 0.12 ? Math.floor(yr).toString() : '';
+            },
+            font: { size: 12 }, color: '#555'
+          },
+          border: { display: false }
+        },
+        y: {
+          min: yMin, max: yMax,
+          grid: {
+            color: c => c.tick.value === 0 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.04)',
+            lineWidth: c => c.tick.value === 0 ? 2 : 1
+          },
+          ticks: { display: false },
+          border: { display: false }
+        }
+      },
+      layout: { padding: { right: 16 } }
+    }
+  });
+}
+
+document.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+
+// ── Data ──────────────────────────────────────────────
+
+const events40s = [
+  { year: 1945.0,  score: 30,  label: "WWII ends in Europe · May 1945 — US and USSR are victorious allies, but tensions over post-war Europe begin immediately" },
+  { year: 1945.25, score: 40,  label: "Atomic bombs dropped on Japan · August 1945 — US alone holds nuclear weapons; overwhelming strategic advantage" },
+  { year: 1945.33, score: 34,  label: "Japan surrenders · WWII over; US emerges as undisputed global superpower with massive economic and military lead" },
+  { year: 1945.5,  score: 26,  label: "Yalta and Potsdam agreements unravel · USSR installs communist governments across Eastern Europe; alliance fractures" },
+  { year: 1945.75, score: 18,  label: "US rapid demobilization · millions of troops sent home fast; military strength shrinks while USSR keeps large army" },
+  { year: 1946.08, score: 10,  label: "Churchill's Iron Curtain speech · March 1946 — names the divide publicly; West begins to recognize the Soviet threat" },
+  { year: 1946.25, score: 4,   label: "USSR refuses to withdraw from Iran · pressured out by US and UN; first direct post-war confrontation" },
+  { year: 1946.5,  score: -4,  label: "Greek Civil War · USSR-backed communists threatening Western-aligned Greek government; US scrambles to respond" },
+  { year: 1946.75, score: -10, label: "Soviet espionage revealed · Gouzenko defection exposes vast USSR spy network embedded in US and UK governments" },
+  { year: 1947.17, score: 4,   label: "Truman Doctrine announced · March 1947 — US pledges to resist Soviet expansion anywhere; Cold War officially begins" },
+  { year: 1947.42, score: 14,  label: "Marshall Plan proposed · June 1947 — massive US aid to rebuild Western Europe; USSR excluded and furious" },
+  { year: 1947.67, score: 20,  label: "CIA and NSC established · US builds permanent peacetime intelligence and national security apparatus" },
+  { year: 1947.83, score: 12,  label: "USSR rejects Marshall Plan, forms Cominform · creates rival Eastern Bloc economic and ideological bloc" },
+  { year: 1948.17, score: 2,   label: "Communist coup in Czechoslovakia · February 1948 — last democratic Eastern European government falls to USSR" },
+  { year: 1948.42, score: -10, label: "Berlin Blockade begins · June 1948 — USSR cuts off all land access to West Berlin; direct superpower standoff" },
+  { year: 1948.58, score: 6,   label: "Berlin Airlift succeeds · US and UK supply 2 million West Berliners entirely by air; stunning logistical triumph" },
+  { year: 1948.75, score: 14,  label: "Marshall Plan funding approved · $13 billion committed; Western Europe stabilizes and begins recovery" },
+  { year: 1948.83, score: 20,  label: "Israel recognized · US first to recognize new state; influence in Middle East established" },
+  { year: 1949.08, score: 28,  label: "NATO founded · April 1949 — 12 Western nations form permanent military alliance; USSR's greatest strategic fear realized" },
+  { year: 1949.25, score: 20,  label: "Berlin Blockade lifted · May 1949 — USSR backs down after 11 months; major Western victory" },
+  { year: 1949.67, score: 4,   label: "USSR tests its first atomic bomb · August 1949 — US nuclear monopoly ends four years earlier than expected; world changes overnight" },
+  { year: 1949.83, score: -10, label: "Mao wins Chinese Civil War · October 1949 — world's most populous nation goes communist; massive strategic blow to the West" },
+];
+
+const events50s = [
+  { year: 1950.0,  score: 0,   label: "Korean War begins · June 1950 — US/UN enters to defend South Korea" },
+  { year: 1950.33, score: -10, label: "China enters Korean War · massive USSR-backed offensive pushes UN forces back" },
+  { year: 1950.75, score: -18, label: "Julius & Ethel Rosenberg arrested for passing atomic secrets to USSR" },
+  { year: 1951.0,  score: -8,  label: "Korean front stabilizes near 38th parallel · US regains footing" },
+  { year: 1951.5,  score: -14, label: "USSR tests its second atomic bomb · nuclear arsenal growing fast" },
+  { year: 1952.0,  score: -4,  label: "US tests first hydrogen bomb (Ivy Mike) · massive yield advantage" },
+  { year: 1952.5,  score: 4,   label: "Eisenhower elected on strong anti-communist platform" },
+  { year: 1953.0,  score: 10,  label: "Stalin dies · March 1953 — USSR enters uncertain transition" },
+  { year: 1953.33, score: 16,  label: "Korean War armistice signed · July 1953 — stalemate but US credibility holds" },
+  { year: 1953.67, score: 4,   label: "USSR tests hydrogen bomb · atomic gap closes rapidly" },
+  { year: 1954.0,  score: 8,   label: "CIA backs coup in Guatemala · covert operations expand US influence" },
+  { year: 1954.42, score: -2,  label: "Dien Bien Phu falls · French colonial defeat opens Vietnam to communist influence" },
+  { year: 1954.75, score: -10, label: "McCarthy hearings televised · domestic paranoia undermines US image abroad" },
+  { year: 1955.0,  score: -4,  label: "Warsaw Pact formed · USSR consolidates Eastern Bloc military alliance" },
+  { year: 1955.5,  score: 2,   label: "Geneva Summit · Eisenhower and Khrushchev meet; brief thaw in tensions" },
+  { year: 1955.83, score: 8,   label: "West Germany joins NATO · major strategic gain for the West" },
+  { year: 1956.25, score: 14,  label: "Khrushchev's 'Secret Speech' denounces Stalin · shakes communist world" },
+  { year: 1956.58, score: 6,   label: "Suez Crisis · US forces UK/France to back down; messy optics all around" },
+  { year: 1956.83, score: -4,  label: "Hungarian Revolution crushed · Soviet tanks roll into Budapest" },
+  { year: 1957.0,  score: 2,   label: "Eisenhower Doctrine announced · US pledges to defend Middle East from communism" },
+  { year: 1957.75, score: -16, label: "USSR launches Sputnik · October 4, 1957 — first satellite shocks the world" },
+  { year: 1957.92, score: -22, label: "Sputnik 2 launches with Laika · USSR dominates early space race" },
+  { year: 1958.08, score: -12, label: "US launches Explorer 1 · America enters space; gap closes slightly" },
+  { year: 1958.5,  score: -6,  label: "Berlin Ultimatum · Khrushchev demands West leave Berlin within 6 months" },
+  { year: 1958.75, score: 2,   label: "NASA established · long-term US commitment to winning space race" },
+  { year: 1959.0,  score: -8,  label: "Cuban Revolution · Fidel Castro takes power; communism 90 miles from Florida" },
+  { year: 1959.5,  score: -2,  label: "Kitchen Debate · Nixon vs. Khrushchev in Moscow; ideological sparring" },
+  { year: 1959.83, score: 4,   label: "Khrushchev visits US · Camp David talks; cautious optimism ends the decade" },
+];
+
+const events60s = [
+  { year: 1960.0,  score: 4,   label: "Start of decade · US holds slight edge from Camp David optimism" },
+  { year: 1960.33, score: -8,  label: "U-2 spy plane shot down · May 1960 — Powers captured, Eisenhower caught lying, Paris Summit collapses" },
+  { year: 1960.67, score: -14, label: "Khrushchev shoe-banging at UN · USSR on the offensive diplomatically; many new African/Asian nations nonaligned" },
+  { year: 1961.0,  score: -6,  label: "Kennedy inaugurated · fresh start, but USSR tests the new president immediately" },
+  { year: 1961.25, score: -18, label: "Bay of Pigs disaster · April 1961 — CIA-backed Cuban invasion fails catastrophically; massive US embarrassment" },
+  { year: 1961.42, score: -10, label: "Vienna Summit · Khrushchev bullies Kennedy; JFK shaken, USSR emboldened" },
+  { year: 1961.5,  score: -22, label: "Yuri Gagarin in space · USSR puts first human in orbit; space race humiliation for US" },
+  { year: 1961.67, score: -14, label: "Berlin Wall construction begins · August 1961 — USSR seals East Berlin; brutal but stabilizes Soviet position" },
+  { year: 1961.83, score: -8,  label: "Alan Shepard in space · first American in space; US begins closing the gap" },
+  { year: 1962.0,  score: -4,  label: "John Glenn orbits Earth · US gains confidence in space program" },
+  { year: 1962.75, score: -20, label: "Cuban Missile Crisis begins · October 1962 — USSR places nuclear missiles in Cuba; world on the brink" },
+  { year: 1962.83, score: 10,  label: "Cuban Missile Crisis resolved · Kennedy's blockade works; Khrushchev backs down and removes missiles" },
+  { year: 1963.0,  score: 16,  label: "Hot Line established · direct US-USSR communication after near-catastrophe" },
+  { year: 1963.5,  score: 20,  label: "Partial Nuclear Test Ban Treaty signed · major diplomatic win; US leads arms control agenda" },
+  { year: 1963.83, score: 8,   label: "JFK assassinated · November 1963 — US leadership shocked; uncertainty about continuity" },
+  { year: 1964.0,  score: 12,  label: "LBJ escalates space spending; Great Society ambitions signal US economic strength" },
+  { year: 1964.5,  score: 4,   label: "Khrushchev ousted · replaced by Brezhnev and Kosygin; USSR in internal power shuffle" },
+  { year: 1964.67, score: -4,  label: "China tests its first nuclear bomb · third nuclear power emerges; complicates US strategy" },
+  { year: 1965.0,  score: -10, label: "US combat troops deploy to Vietnam · March 1965 — massive escalation begins; Cold War proxy war deepens" },
+  { year: 1965.5,  score: -16, label: "Anti-war movement grows · US public opinion fractures; USSR exploits globally" },
+  { year: 1966.0,  score: -10, label: "US bombing campaigns in North Vietnam · costly stalemate with no clear end" },
+  { year: 1966.5,  score: -6,  label: "France withdraws from NATO military command · US alliance frays at edges" },
+  { year: 1967.0,  score: 2,   label: "Outer Space Treaty signed · both superpowers agree to ban weapons in space" },
+  { year: 1967.5,  score: -6,  label: "Six-Day War · US-backed Israel wins decisively but Middle East instability grows" },
+  { year: 1968.0,  score: -14, label: "Tet Offensive · January 1968 — massive NVA/Viet Cong assault shatters US public confidence in Vietnam" },
+  { year: 1968.25, score: -20, label: "MLK and RFK assassinated · US society fracturing; global image severely damaged" },
+  { year: 1968.67, score: -12, label: "Prague Spring crushed · Soviet tanks end Czech reform movement; USSR brutal but consolidates control" },
+  { year: 1968.83, score: -6,  label: "Nixon elected on 'peace with honor' platform; détente signals shift in strategy" },
+  { year: 1969.5,  score: 20,  label: "Apollo 11 · July 20, 1969 — Neil Armstrong walks on the Moon; US wins the space race definitively" },
+  { year: 1969.83, score: 14,  label: "Nixon Doctrine announced · US to arm allies rather than fight directly; Vietnam drawdown begins" },
+];
+
+const events70s = [
+  { year: 1970.0,  score: 14,  label: "Start of decade · Nixon's détente strategy in full swing; US cautiously ahead" },
+  { year: 1970.33, score: 6,   label: "Kent State shootings · National Guard kills 4 student protesters; US image abroad badly damaged" },
+  { year: 1970.67, score: 10,  label: "SALT I negotiations underway · both sides signal willingness to limit nuclear arms" },
+  { year: 1971.25, score: 16,  label: "Nixon opens relations with China · brilliant triangular diplomacy isolates USSR" },
+  { year: 1971.75, score: 8,   label: "Nixon ends gold standard · dollar shock ripples through global economy; US economic weakness exposed" },
+  { year: 1972.33, score: 18,  label: "Nixon visits China · historic handshake with Mao; USSR unnerved by US-China rapprochement" },
+  { year: 1972.5,  score: 22,  label: "Moscow Summit · Nixon and Brezhnev sign SALT I and ABM Treaty; peak of détente" },
+  { year: 1972.67, score: 10,  label: "Watergate break-in · June 1972 — burglars caught at DNC; scandal begins to simmer" },
+  { year: 1973.0,  score: 14,  label: "Vietnam Peace Accords signed · January 1973 — US withdrawal begins; 'peace with honor'" },
+  { year: 1973.5,  score: 2,   label: "Watergate hearings televised · Nixon's cover-up unravels on national TV; presidency in crisis" },
+  { year: 1973.75, score: -8,  label: "Yom Kippur War · USSR-backed Egypt and Syria attack Israel; US emergency airlift triggers oil embargo" },
+  { year: 1973.83, score: -16, label: "OPEC oil embargo · Arab states cut off oil to US; energy crisis, gas lines, economic shock" },
+  { year: 1974.0,  score: -22, label: "Nixon resigns · August 1974 — first US president to resign; massive blow to American credibility and leadership" },
+  { year: 1974.5,  score: -14, label: "Ford pardons Nixon · public outrage; Vladivostok Summit with Brezhnev offers slim diplomatic recovery" },
+  { year: 1975.0,  score: -20, label: "Saigon falls · April 30, 1975 — South Vietnam collapses; US helicopters evacuate embassy rooftop; humiliating end to Vietnam" },
+  { year: 1975.33, score: -28, label: "Khmer Rouge takes Cambodia, Pathet Lao takes Laos · communist dominoes fall in Southeast Asia" },
+  { year: 1975.58, score: -16, label: "Helsinki Accords signed · US accepts Soviet sphere in Eastern Europe; human rights provisions a quiet long-term win" },
+  { year: 1975.75, score: -22, label: "Angola civil war · USSR and Cuba back MPLA to victory; Soviet power projection in Africa expands" },
+  { year: 1976.0,  score: -14, label: "Apollo-Soyuz mission · symbolic US-USSR space handshake; cautious cooperation amid broader rivalry" },
+  { year: 1976.5,  score: -8,  label: "Carter elected · human rights foreign policy signals new direction but projects uncertainty to allies" },
+  { year: 1977.0,  score: -4,  label: "Carter's human rights campaign · embarrasses USSR internationally; dissident movement gains global attention" },
+  { year: 1977.5,  score: 2,   label: "Camp David Accords framework begins · Carter brokers Egypt-Israel peace; major US diplomatic win in Middle East" },
+  { year: 1978.0,  score: 8,   label: "Deng Xiaoping opens China economy · US-China normalization finalized; strategic blow to USSR" },
+  { year: 1978.75, score: 16,  label: "Camp David Accords signed · September 1978 — Egypt-Israel peace deal; Carter's foreign policy high point" },
+  { year: 1979.0,  score: 8,   label: "SALT II signed · June 1979 — further arms limits agreed, but Senate skeptical" },
+  { year: 1979.25, score: -4,  label: "Iranian Revolution · Shah falls; US hostages taken; America humiliated in the Middle East" },
+  { year: 1979.5,  score: -12, label: "Iran hostage crisis deepens · 52 Americans held; Carter paralyzed; US looks powerless" },
+  { year: 1979.83, score: -24, label: "USSR invades Afghanistan · December 1979 — massive Soviet military move; Carter calls it gravest threat since WWII; détente is dead" },
+];
+
+const events80s = [
+  { year: 1980.0,  score: 0,   label: "Start of decade · parity after Afghanistan invasion shocks the West" },
+  { year: 1980.5,  score: -12, label: "US-led boycott of Moscow Olympics" },
+  { year: 1981.0,  score: -6,  label: "USSR supports Poland martial law crackdown" },
+  { year: 1981.5,  score: 4,   label: "Reagan military buildup begins; SDI proposed" },
+  { year: 1982.5,  score: 8,   label: "Reagan calls USSR 'Evil Empire'; economic pressure intensifies" },
+  { year: 1983.0,  score: 14,  label: "SDI (Star Wars) announced; NATO Able Archer 83 raises tensions" },
+  { year: 1983.5,  score: 10,  label: "USSR shoots down KAL 007; global condemnation" },
+  { year: 1984.0,  score: 18,  label: "US GDP surging; USSR economy stagnating" },
+  { year: 1984.5,  score: 12,  label: "USSR boycotts Los Angeles Olympics in retaliation" },
+  { year: 1985.0,  score: 16,  label: "Gorbachev rises to power; reform era begins" },
+  { year: 1985.5,  score: 20,  label: "Gorbachev–Reagan Geneva Summit; constructive talks" },
+  { year: 1986.0,  score: 10,  label: "Reykjavik Summit · near-deal on arms, then collapses" },
+  { year: 1986.5,  score: -2,  label: "Iran-Contra scandal breaks; Reagan credibility damaged" },
+  { year: 1987.0,  score: 6,   label: "INF Treaty signed; first nuclear arms reduction agreement" },
+  { year: 1987.5,  score: 14,  label: "Reagan at Brandenburg Gate: 'Tear down this wall!'" },
+  { year: 1988.0,  score: 18,  label: "USSR begins withdrawing from Afghanistan" },
+  { year: 1988.5,  score: 22,  label: "Soviet withdrawal from Afghanistan complete; major setback for USSR" },
+  { year: 1989.0,  score: 28,  label: "Solidarity wins in Poland; Eastern Bloc cracks" },
+  { year: 1989.42, score: 35,  label: "Berlin Wall falls · November 9, 1989" },
+  { year: 1989.75, score: 40,  label: "Romanian revolution; Ceaușescu falls" },
+  { year: 1990.0,  score: 44,  label: "Germany reunification underway; Gorbachev grants consent" },
+  { year: 1990.5,  score: 48,  label: "Baltic states declare independence; USSR struggles to respond" },
+  { year: 1991.0,  score: 54,  label: "Gulf War coalition victory; US military prestige at peak" },
+  { year: 1991.5,  score: 62,  label: "August coup attempt against Gorbachev fails" },
+  { year: 1991.83, score: 70,  label: "USSR formally dissolves · December 25, 1991" },
+];
+
+buildChart('chart40s', events40s, -30, 55);
+buildChart('chart50s', events50s, -40, 40);
+buildChart('chart60s', events60s, -40, 40);
+buildChart('chart70s', events70s, -45, 40);
+buildChart('chart80s', events80s, -30, 80);
+</script>
+</body>
+</html>
